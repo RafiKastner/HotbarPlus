@@ -14,6 +14,7 @@ const config = {
 
   url: 'https://rafikastner.github.io/HotbarPlus/',
   baseUrl: '/',
+  organizationName: 'RafiKastner',
   projectName: 'HotbarPlus',
 
   onBrokenLinks: 'throw',
