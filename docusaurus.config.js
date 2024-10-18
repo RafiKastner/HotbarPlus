@@ -2,8 +2,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'HotbarPlus',
-  tagline: 'Quick and easy hotbars',
+  title: 'My Site',
+  tagline: 'Dinosaurs are cool',
   favicon: 'img/favicon.ico',
 
   url: 'https://github.com',
@@ -42,7 +42,7 @@ const config = {
     ({
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'HotbarPlus',
+        title: 'My Site',
         logo: {
           alt: 'My Site Logo',
           src: 'img/logo.svg',
@@ -55,7 +55,7 @@ const config = {
             label: 'Tutorial',
           },
           {
-            href: 'https://github.com/rafikastner/topbarplus',
+            href: 'https://github.com/facebook/docusaurus',
             label: 'GitHub',
             position: 'right',
           },
@@ -78,7 +78,11 @@ const config = {
             items: [
               {
                 label: 'Discord',
-                href: 'https://discord.com/app',
+                href: 'https://discordapp.com/invite/docusaurus',
+              },
+              {
+                label: 'Twitter',
+                href: 'https://twitter.com/docusaurus',
               },
             ],
           },
@@ -87,16 +91,12 @@ const config = {
             items: [
               {
                 label: 'GitHub',
-                href: 'https://github.com/RafiKastner/HotbarPlus',
+                href: 'https://github.com/facebook/docusaurus',
               },
-              {
-                label: 'DevForum',
-                href: 'devforum.roblox.com'
-              }
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Rafi Kastner.`,
+        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
       },
       prism: {
         theme: prismThemes.github,
