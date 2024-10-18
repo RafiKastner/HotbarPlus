@@ -2,8 +2,8 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'My Site',
-  tagline: 'Dinosaurs are cool',
+  title: 'HotbarPlus',
+  tagline: 'Hotbars in a couple lines or less',
   favicon: 'img/favicon.ico',
 
   url: 'https://github.com',
@@ -42,17 +42,19 @@ const config = {
     ({
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
-        title: 'My Site',
-        logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
-        },
+        title: 'HotbarPlus',
         items: [
           {
             type: 'docSidebar',
-            sidebarId: 'tutorialSidebar',
+            sidebarId: 'aboutSidebar',
             position: 'left',
-            label: 'Tutorial',
+            label: 'Intro',
+          },
+          {
+            type: 'docSidebar',
+            sidebarId: 'docsSidebar',
+            position: 'left',
+            label: 'Docs',
           },
           {
             href: 'https://github.com/facebook/docusaurus',
@@ -96,7 +98,7 @@ const config = {
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with Docusaurus.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Rafi Kastner.`,
       },
       prism: {
         theme: prismThemes.github,

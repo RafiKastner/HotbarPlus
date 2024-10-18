@@ -8,28 +8,28 @@ const FeatureList = [
     Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
     description: (
       <>
-        Docusa urus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
+        HotbarPlus uses simple and dynamic methods that you can call
+        wherever and whenever.
       </>
     ),
   },
   {
-    title: 'Focus on What Matters',
+    title: 'Lightweight',
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
+        Streamlined and efficient with GoodSignal and Janitor, HotbarPlus
+        causes minimal lag and memory leaks.
       </>
     ),
   },
   {
-    title: 'Powered by React',
+    title: 'Object-Oriented',
     Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
     description: (
       <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Not only easy to use with default methods, but intuitive to modify
+        and add your own.
       </>
     ),
   },
