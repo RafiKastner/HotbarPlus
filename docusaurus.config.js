@@ -12,19 +12,14 @@ const config = {
   tagline: 'Dinosaurs are cool',
   favicon: 'img/favicon.ico',
 
-  url: 'https://rafikastner.github.io/',
-  baseUrl: '/',
+  url: 'https://github.io',
+  baseUrl: '/HotbarPlus',
   organizationName: 'RafiKastner',
   projectName: 'HotbarPlus',
-  trailingSlash: true,
+  trailingSlash: false,
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
-
-  /*i18n: {
-    defaultLocale: 'en',
-    locales: ['en'],
-  }, */
 
   presets: [
     [
