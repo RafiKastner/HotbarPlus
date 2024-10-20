@@ -46,7 +46,7 @@ const config = {
         items: [
           {
             type: 'docSidebar',
-            sidebarId: 'aboutSidebar',
+            sidebarId: 'introSidebar',
             position: 'left',
             label: 'Intro',
           },

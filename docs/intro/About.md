@@ -5,7 +5,7 @@ sidebar_position: 1
 # About
 HotbarPlus is an open-source module made to make hotbars easier.
 
-You can create hotbars in **less than 10 lines!
+You can create sufficient hotbars in **less than 10 lines!**
 
 HotbarPlus fully supports PC and mobile, allowing items to be selected with mouse click, a key, tapping, or an external activator.
 
