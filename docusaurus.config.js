@@ -22,15 +22,9 @@ const config = {
     locales: ['en'],
   },
 
-  headTags: [
-    {
-      tagName: 'meta',
-      attributes: {
-        name: 'description',
-        content: 'Here is my description',
-      },
-    }
-  ],
+  customFields: {
+    description: 'BABABA escription',
+  },
 
   presets: [
     [
