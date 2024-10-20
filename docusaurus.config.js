@@ -22,6 +22,16 @@ const config = {
     locales: ['en'],
   },
 
+  headTags: [
+    {
+      tagName: 'meta',
+      attributes: {
+        name: 'description',
+        content: 'Here is my description',
+      },
+    }
+  ],
+
   presets: [
     [
       'classic',
