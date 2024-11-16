@@ -1,16 +1,3 @@
---[[
-To do:
-	- Themes
-		- Can set and labels for specific states (selected, deselected, etc)
-	- **PressAgain
-		- pressAgain is a signal
-		- configure with a function (amount of pressAgains, time window for each)
-		- able to use on either mouse input or key press depending on if oneClick or not
-			- therefore om handletoggle before the locked part
-				- because if use cooldown() should still be able to use right (only if 
-					have a setting enabled)
-]]
-
 -- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -159,6 +146,7 @@ function Hotbar.new()
 	self.toggled = janitor:Add(Signal.new())
 	self.used = janitor:Add(Signal.new())
 	self.endUsed = janitor:Add(Signal.new())
+	self.pressedAgain = janitor:Add(Signal.new())
 	self.stateChanged = janitor:Add(Signal.new())
 	self.viewingStarted = janitor:Add(Signal.new())
 	self.viewingEnded = janitor:Add(Signal.new())
@@ -172,6 +160,8 @@ function Hotbar.new()
 	self.isOnCooldown = false
 	self.oneClickEnabled = false
 	self.isHoldingOneClickUse = false
+	self.pressAgainMax = 0
+	self.pressAgainNum = 0
 	self.autoDeselect = true
 	self.isLocked = false
 	self.outlineEnabled = true
@@ -183,6 +173,7 @@ function Hotbar.new()
 	self.LayoutOrder = 0
 	self.boundEvents = {}
 	self.boundConditions = {}
+	self.boundPressAgain = {}
 	self.boundToggleKeys = {}
 	self.boundToggleItems = {}
 	
@@ -261,15 +252,31 @@ function Hotbar.new()
 		end
 		
 		local pass = not self.shouldEndUseOnCooldown and self.isUsing
-		if self.isOnCooldown and not pass then
+		local pressNum = self.pressAgainNum
+		local pressAgainPass = pressNum <= self.pressAgainMax and pressNum ~= 0
+		if self.isOnCooldown and not pass and not pressAgainPass then
 			return
 		end
 		-- again bruh these conditions dumb but idc
 		local inputType = input.UserInputType
 		if (inputType == Enum.UserInputType.MouseButton1 or inputType == Enum.UserInputType.Touch) and (self.isSelected or pass) then
 			if input.UserInputState == Enum.UserInputState.Begin and not pass then
-				self:attemptTo("use")
+				if pressAgainPass then
+					if self.boundPressAgain[pressNum] then
+						self.boundPressAgain[pressNum](self, pressNum)
+						self.pressedAgain:Fire(pressNum, "InputBegan", "User", self)
+					end
+				else
+					self:attemptTo("use")
+				end
+				self.pressAgainNum += 1
+				self.pressAgainNum = self.pressAgainNum > self.pressAgainMax and 0 or self.pressAgainNum
+
 			else
+				if self.pressAgainNum ~= 1 then
+					self.pressedAgain:Fire(pressNum, "InputEnded", "User", self)
+					return
+				end
 				self:attemptTo("endUse")
 			end
 		end
@@ -368,10 +375,6 @@ end
 function Hotbar:endUseOnCooldown(bool)
 	self.shouldEndUseOnCooldown = bool
 	return self
-end
-
-function Hotbar:animation()
-	
 end
 
 function Hotbar:bindEvent(itemEventType, callback)
@@ -569,6 +572,24 @@ function Hotbar:deselectAllBut()
 			item:deselect()
 		end
 	end
+	return self
+end
+
+function Hotbar:bindPressAgain(number, callback)
+	self.pressAgainMax = math.max(number, self.pressAgainMax)
+	self.boundPressAgain[number] = callback
+	return self
+end
+
+function Hotbar:unbindPressAgain(number)
+	self.pressAgainMax = math.min(number - 1, self.pressAgainMax)
+	self.boundPressAgain[number] = false
+	return self
+end
+
+function Hotbar:setPressAgainMax(number)
+	self.pressAgainMax = number
+	return self
 end
 
 function Hotbar:select(fromSource, sourceItem)
@@ -584,11 +605,13 @@ end
 function Hotbar:use()
 	self.isUsing = true
 	self.used:Fire()
+	return self
 end
 
 function Hotbar:endUse()
 	self.isUsing = false
 	self.endUsed:Fire()
+	return self
 end
 
 function Hotbar:setState(incomingState, fromSource, sourceItem)	
