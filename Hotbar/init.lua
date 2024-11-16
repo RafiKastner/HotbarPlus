@@ -1,3 +1,16 @@
+--[[
+To do:
+	- Themes
+		- Can set and labels for specific states (selected, deselected, etc)
+	- **PressAgain
+		- pressAgain is a signal
+		- configure with a function (amount of pressAgains, time window for each)
+		- able to use on either mouse input or key press depending on if oneClick or not
+			- therefore om handletoggle before the locked part
+				- because if use cooldown() should still be able to use right (only if 
+					have a setting enabled)
+]]
+
 -- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -12,8 +25,10 @@ local Hotbar = {}
 Hotbar.__index = Hotbar
 
 -- Local
+local module = script
 local localPlayer = Players.LocalPlayer
 local hotbarDict = {}
+local animations = {}
 local anyItemSelected = Signal.new()
 local state = "allDeselected"
 
@@ -67,6 +82,50 @@ function Hotbar.unbindConditionAll(name)
 	end
 end
 
+function Hotbar.setVariableAll(var, val)
+	for _,item in pairs(hotbarDict) do
+		item[var] = val
+	end
+end
+
+function Hotbar.runMethodAll(method, ...)
+	for _,item in pairs(hotbarDict) do
+		item[method](item, ...)
+	end
+end
+
+function Hotbar.newAnimation(name, callback)
+	animations[name] = callback
+end
+
+function Hotbar.playAnimation(name, ...)
+	animations[name](...)
+end
+
+Hotbar.newAnimation("TweenIn", function(Time, tweenInfo)
+	Time = Time and not nil or .5
+	tweenInfo = tweenInfo and not nil or TweenInfo.new(
+		Time,
+		Enum.EasingStyle.Sine,
+		Enum.EasingDirection.InOut,
+		0,
+		false,
+		0
+	)
+	local oldPosition = Hotbar.container.Position
+	Hotbar.container.Position = UDim2.new(oldPosition.X.Scale, oldPosition.X.Offset, oldPosition.Y.Scale, 70)
+	local tween = TweenService:Create(Hotbar.container, tweenInfo, { Position = oldPosition })
+	tween:Play()
+end)
+
+Hotbar.newAnimation("selectedCooldown", function(self)
+	self.widgetFill.BackgroundColor3 = Color3.fromRGB(103, 182, 255)
+end)
+
+Hotbar.newAnimation("deselectedCooldown", function(self)
+	self.widgetFill.BackgroundColor3 = Color3.fromRGB(255, 111, 111)
+end)
+
 
 -- Constructor
 function Hotbar.new()
@@ -106,31 +165,44 @@ function Hotbar.new()
 	self.toggleKeyAdded = janitor:Add(Signal.new())
 	
 	-- Properties
+	self.hotbarModule = module
 	self.isSelected = false
 	self.isViewing = false
+	self.isUsing = false
+	self.isOnCooldown = false
 	self.oneClickEnabled = false
+	self.isHoldingOneClickUse = false
 	self.autoDeselect = true
 	self.isLocked = false
 	self.outlineEnabled = true
+	self.shouldEndUseOnCooldown = false
+	self.canSelectOnCooldown = false
+	self.shouldDeselectOnCooldown = false
 	self.activeState = "deselected"
 	self.UID = UID
+	self.LayoutOrder = 0
 	self.boundEvents = {}
 	self.boundConditions = {}
 	self.boundToggleKeys = {}
 	self.boundToggleItems = {}
 	
 	--Widget is the name for the gui (item is the item/slot itself)
-	local widget = require(script.Elements.Widget)(self, Hotbar)
+	local holder, widget = require(script.Elements.Widget)(self, Hotbar)
 	self.widget = widget
+	self.holder = holder
 	self.widgetOutline = self.widget.UIStroke
 	self.widgetFill = self.widget.Fill
-	
+		
 	-- Internal Functions/Listeners
 	local function handleToggle()
 		if self.isLocked then
 			return
 		end
-
+		
+		if self.isOnCooldown and not self.canSelectOnCooldown and not self.shouldDeselectOnCooldown and not self.isSelected then
+			return
+		end
+		-- gross ewww these conditions above are terrible I hate it ew gross fix please
 		if self.isSelected then
 			self:attemptTo("deselect", "User", self)
 
@@ -141,7 +213,7 @@ function Hotbar.new()
 	end
 	
 	local function viewingStarted(dontSetState)
-		if self.isLocked then
+		if self.isLocked or self.isOnCooldown then
 			return
 		end
 		
@@ -153,7 +225,7 @@ function Hotbar.new()
 	end
 	
 	local function viewingEnded()
-		if self.isLocked then 
+		if self.isLocked or self.isOnCooldown then 
 			return
 		end
 		
@@ -162,9 +234,16 @@ function Hotbar.new()
 		self:setState(nil, "User", self)
 	end
 	
-	widget.TextButton.Activated:Connect(function()
-		handleToggle()
-	end)
+	local function oneClickUsingRelease()
+		if self.isHoldingOneClickUse then
+			self.isHoldingOneClickUse = false
+			self:attemptTo("endUse")
+		end
+	end
+	
+	widget.TextButton.MouseButton1Down:Connect(handleToggle)
+	widget.TextButton.MouseButton1Up:Connect(oneClickUsingRelease)
+	widget.TouchTap:Connect(handleToggle)
 	
 	widget.TextButton.MouseEnter:Connect(function()
 		local dontSetState = not UserInputService.KeyboardEnabled
@@ -175,17 +254,26 @@ function Hotbar.new()
 		viewingEnded()
 	end)
 	
-	local function mouseInput(input)
+	
+	local function mouseInput(input)		
 		if self.isLocked then
 			return
 		end
-		if input.UserInputType == Enum.UserInputType.MouseButton1 and self.isSelected then
-			if input.UserInputState == Enum.UserInputState.Begin then
+		
+		local pass = not self.shouldEndUseOnCooldown and self.isUsing
+		if self.isOnCooldown and not pass then
+			return
+		end
+		-- again bruh these conditions dumb but idc
+		local inputType = input.UserInputType
+		if (inputType == Enum.UserInputType.MouseButton1 or inputType == Enum.UserInputType.Touch) and (self.isSelected or pass) then
+			if input.UserInputState == Enum.UserInputState.Begin and not pass then
 				self:attemptTo("use")
 			else
 				self:attemptTo("endUse")
 			end
 		end
+		
 	end
 	
 	janitor:Add(UserInputService.InputBegan:Connect(function(input, GPE)
@@ -204,10 +292,14 @@ function Hotbar.new()
 			return
 		end
 		
+		if self.boundToggleKeys[input.KeyCode] and self.isHoldingOneClickUse then
+			self.isHoldingOneClickUse = false
+			self:attemptTo("endUse")
+		end
+		
 		mouseInput(input)
 	end))
-
-	
+		
 	self.selected:Connect(function()
 		if self.outlineEnabled then
 			self.widgetOutline.Enabled = true
@@ -231,17 +323,23 @@ end
 
 
 -- Methods
-function Hotbar:setLabel(text, itemState)
+function Hotbar:setLabel(text)
 	self.widget.Label.Text = text
 	return self
 end
 
-function Hotbar:setText(text, itemState)
+function Hotbar:setText(text)
 	self.widget.TextButton.Text = text
 	return self
 end
 
+function Hotbar:setBottomText(text)
+	self.widget.BottomText.Text = text
+	return self
+end
+
 function Hotbar:setName(name)
+	self.holder.Name = name.."-holder"
 	self.widget.Name = name
 	self.Name = name
 	return self
@@ -250,6 +348,25 @@ end
 function Hotbar:showOutline(bool)
 	bool = nil and true or bool
 	self.outlineEnabled = bool
+	return self
+end
+
+
+function Hotbar:setLayoutOrder(position)
+	if position == 0 then
+		self.holder.Padding.Visible = false
+		self.holder.Size = UDim2.new(0, 55, 0, 55)
+	else
+		self.holder.Padding.Visible = true
+		self.holder.Size = UDim2.new(0, 60, 0, 55)
+	end
+	self.LayoutOrder = position
+	self.holder.LayoutOrder = position
+	return self
+end
+
+function Hotbar:endUseOnCooldown(bool)
+	self.shouldEndUseOnCooldown = bool
 	return self
 end
 
@@ -307,7 +424,7 @@ function Hotbar:checkConditions(event)
 		return check
 	end
 	for _,callback in pairs(self.boundConditions[event]) do
-		if callback() == false then
+		if callback(self) == false then
 			check = false
 		end
 	end
@@ -366,8 +483,9 @@ end
 function Hotbar:oneClick(bool)
 	self.oneClickJanitor:Clean()
 	if bool or bool == nil then
-		self.oneClickJanitor:Add(self.toggled:Connect(function(selected)
-			self:attemptTo("endUse")
+		self.oneClickJanitor:Add(self.selected:Connect(function(selected)
+			self:attemptTo("use")
+			self.isHoldingOneClickUse = true
 			task.wait() --  Ugh this is here because I think GoodSignal does not queue signals so this can fuck up
 			--  the firstSelected signal becuase shit gets out of order fucking fix this please
 			self:attemptTo("deselect", "OneClick", self)
@@ -414,12 +532,28 @@ function Hotbar:setWidgetFill(percentFill, duration)
 end
 
 function Hotbar:cooldown(duration)
-	self:deselect()
-	self:lock()
+	if self.shouldDeselectOnCooldown then
+		self:deselect()
+	end
+	if self.shouldEndUseOnCooldown then
+		self:endUse()
+	end
+	self.isOnCooldown = true
 	local tween = self:setWidgetFill(100, duration)
 	tween.Completed:Connect(function()
-		self:unlock()
+		self:endCooldown()
 	end)
+	return self
+end
+
+function Hotbar:endCooldown()
+	self:setWidgetFill(0)
+	self.isOnCooldown = false
+	return self
+end
+
+function Hotbar:playAnimationSelf(name, ...)
+	animations[name](self, ...)
 	return self
 end
 
@@ -448,10 +582,12 @@ function Hotbar:deselect(fromSource, sourceItem)
 end
 
 function Hotbar:use()
+	self.isUsing = true
 	self.used:Fire()
 end
 
 function Hotbar:endUse()
+	self.isUsing = false
 	self.endUsed:Fire()
 end
 
