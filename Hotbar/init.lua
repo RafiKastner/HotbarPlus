@@ -162,6 +162,7 @@ function Hotbar.new()
 	self.isHoldingOneClickUse = false
 	self.pressAgainMax = 0
 	self.pressAgainNum = 0
+	self.resetPressAgain = true
 	self.autoDeselect = true
 	self.isLocked = false
 	self.outlineEnabled = true
@@ -545,6 +546,7 @@ function Hotbar:cooldown(duration)
 	local tween = self:setWidgetFill(100, duration)
 	tween.Completed:Connect(function()
 		self:endCooldown()
+		self.pressAgainNum = 0
 	end)
 	return self
 end
@@ -589,6 +591,12 @@ end
 
 function Hotbar:setPressAgainMax(number)
 	self.pressAgainMax = number
+	return self
+end
+
+function Hotbar:resetPressAgainOnEndCooldown(bool)
+	bool = bool == nil and true or bool
+	self.resetPressAgain = bool
 	return self
 end
 
