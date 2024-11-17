@@ -4,7 +4,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 const config = {
   title: 'HotbarPlus',
   tagline: 'Hotbars in a couple lines or less',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/logo.webp',
 
   url: 'https://github.com',
   baseUrl: '/HotbarPlus/',
@@ -22,10 +22,6 @@ const config = {
     locales: ['en'],
   },
 
-  customFields: {
-    description: 'BABABA escription',
-  },
-
   presets: [
     [
       'classic',
@@ -33,6 +29,8 @@ const config = {
       ({
         docs: {
           sidebarPath: './sidebars.js',
+          path: 'docs',
+          routeBasePath: '/'
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -47,6 +45,10 @@ const config = {
       image: 'img/docusaurus-social-card.jpg',
       navbar: {
         title: 'HotbarPlus',
+        logo: {
+          alt: 'TopbarPlus logo',
+          src: 'img/logo.webp',
+        },
         items: [
           {
             type: 'docSidebar',
@@ -61,7 +63,7 @@ const config = {
             label: 'Docs',
           },
           {
-            href: 'https://github.com/facebook/docusaurus',
+            href: 'https://github.com/RafiKastner/HotbarPlus',
             label: 'GitHub',
             position: 'right',
           },
@@ -84,11 +86,11 @@ const config = {
             items: [
               {
                 label: 'Discord',
-                href: 'https://discordapp.com/invite/docusaurus',
+                href: 'https://discordapp.com',
               },
               {
-                label: 'Twitter',
-                href: 'https://twitter.com/docusaurus',
+                label: 'DevForum',
+                href: 'https://devforum.roblox.com',
               },
             ],
           },
@@ -96,8 +98,8 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                label: 'My GitHub',
+                href: 'https://github.com/RafiKastner',
               },
             ],
           },

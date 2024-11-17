@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Introduction
 
 In this section I'll walk you through what HotbarPlus is and how to use it. 🎉
