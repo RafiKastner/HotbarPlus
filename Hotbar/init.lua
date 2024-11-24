@@ -263,7 +263,7 @@ function Hotbar.new()
 		if (inputType == Enum.UserInputType.MouseButton1 or inputType == Enum.UserInputType.Touch) and (self.isSelected or pass) then
 			if input.UserInputState == Enum.UserInputState.Begin and not pass then
 				if pressAgainPass then
-					if self.boundPressAgain[pressNum] then
+					if self.boundPressAgain[pressNum] and self.boundConditions["presAgain"] then
 						self.boundPressAgain[pressNum](self, pressNum)
 						self.pressedAgain:Fire(pressNum, "InputBegan", "User", self)
 					end
@@ -621,6 +621,11 @@ function Hotbar:endUse()
 	self.endUsed:Fire()
 	return self
 end
+
+function Hotbar:destroy() {
+	self.janitor:Cleanup()
+	self.holder:Destroy() --may need "DisconnectAll" after each goodsignal added to janitor
+}
 
 function Hotbar:setState(incomingState, fromSource, sourceItem)	
 	if incomingState == nil then
