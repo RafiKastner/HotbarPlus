@@ -6,6 +6,10 @@
 }
 
 .featureSvg {
+  object-fit: cover;
+}
+
+.imgContainer {
   height: 200px;
-  width: 200px;
+  overflow: hidden;
 }
