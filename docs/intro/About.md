@@ -101,12 +101,18 @@ Each item has its own container that wraps the padding and the widget. The widge
 The GUI tree is as follows:  
 ```
 Hotbar (Screen GUI)
-└───Item-container
-│   │   file011.txt
-│   └───subfolder1
-│       │   file111.txt
-│       │   file112.txt
-│       │   ...
+└───Container
+│   │   UIListLayout
+│   └───Holder
+│       │   UIListLayout
+│       │   Padding
+│       │   Widget
+│       │   │   UIStroke
+│       │   │   Fill
+│       │   │   TextButton
+│       │   │   BottomText
+│       │   │   Label
+│       │       
 │   
 ```
 
