@@ -163,6 +163,7 @@ function Hotbar.new()
 	self.pressAgainMax = 0
 	self.pressAgainNum = 0
 	self.resetPressAgain = true
+	self.canPressAgainOnCooldown = true
 	self.autoDeselect = true
 	self.isLocked = false
 	self.outlineEnabled = true
@@ -254,7 +255,7 @@ function Hotbar.new()
 
 		local pass = not self.shouldEndUseOnCooldown and self.isUsing
 		local pressNum = self.pressAgainNum
-		local pressAgainPass = pressNum <= self.pressAgainMax and pressNum ~= 0
+		local pressAgainPass = pressNum <= self.pressAgainMax and pressNum ~= 0 and self.canPressAgainOnCooldown
 		if self.isOnCooldown and not pass and not pressAgainPass then
 			return
 		end
@@ -263,7 +264,7 @@ function Hotbar.new()
 		if (inputType == Enum.UserInputType.MouseButton1 or inputType == Enum.UserInputType.Touch) and (self.isSelected or pass) then
 			if input.UserInputState == Enum.UserInputState.Begin and not pass then
 				if pressAgainPass then
-					if self.boundPressAgain[pressNum] and self.boundConditions["presAgain"] then
+					if self.boundPressAgain[pressNum] and self:checkConditions("pressAgain") then
 						self.boundPressAgain[pressNum](self, pressNum)
 						self.pressedAgain:Fire(pressNum, "InputBegan", "User", self)
 					end
@@ -542,14 +543,13 @@ function Hotbar:cooldown(duration)
 	if self.shouldEndUseOnCooldown then
 		self:endUse()
 	end
-	if self.resetPressAgain then
-		self.pressAgainNum = 0
-	end
 	self.isOnCooldown = true
 	local tween = self:setWidgetFill(100, duration)
 	tween.Completed:Connect(function()
 		self:endCooldown()
-		self.pressAgainNum = 0
+		if self.resetPressAgain then
+			self.pressAgainNum = 0
+		end
 	end)
 	return self
 end
@@ -600,6 +600,12 @@ end
 function Hotbar:resetPressAgainOnEndCooldown(bool)
 	bool = bool == nil and true or bool
 	self.resetPressAgain = bool
+	return self
+end
+
+function Hotbar:setCanPressAgainOnCooldown(bool)
+	bool = bool == nil and true or bool
+	self.canPressAgainOnCooldown = bool
 	return self
 end
 
