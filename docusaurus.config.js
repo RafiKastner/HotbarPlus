@@ -95,7 +95,7 @@ const config = {
               },
               {
                 label: 'DevForum',
-                href: 'https://devforum.roblox.com',
+                href: 'https://devforum.roblox.com/t/hotbarplus-construct-intuitive-hotbars-quickly-and-easily/3296451',
               },
             ],
           },
