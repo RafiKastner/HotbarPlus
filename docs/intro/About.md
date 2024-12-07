@@ -24,10 +24,10 @@ item:setText("Cool text")
 item:setLabel("1")
 ```
 Do stuff like
-- binding functions to events
-- binding conditions for those functions 
-- changing the appearance
-- changing behavior
+- binding [functions](#binding-events) to events 🔩
+- binding [conditions](#conditions) for those functions🔓
+- changing the [appearance](#parts-of-an-item-🧩) 💎
+- changing [behavior](#behavior) 🕹️
 - and more!
 
 ### Method Chaining 🔗
@@ -45,6 +45,37 @@ item:bindCondition("wasUsed", "used", function(icon)
     return false
 end)
     :setName("Sword")
+```
+
+## Binding Events
+You can bind functions to specific events such as an item being selected, deselected, toggled, used, end of used, viewed, and end of viewed.  
+  
+Do so with the following method:
+```lua
+item:bindEvent("used", function()
+    -- use a skill here
+end)
+
+local function selected()
+    --equip sword
+end
+
+item:bindEvent("selected", selected)
+```
+### Conditions
+You can similarly bind conditions for thise events. If the function returns false, then the condition returns false, otherwise it passes. If the condition doesn't pass then the function bound to event (like above) does not run.  
+  
+Essentially, condition functions just house you own condition checks that are called upon that event.  
+  
+The first argument must be the name of the condition. This is what you use when you want to unbind a condition.
+```lua
+item:bindCondition("ragdolled", "used", function()
+    if playerIsRagdolled then 
+        return false 
+    else 
+        return true 
+    end
+)
 ```
 
 ## Signals
@@ -69,11 +100,9 @@ Each item has its own container that wraps the padding and the widget. The widge
 
 The GUI tree is as follows:  
 ```
-Hotbar
+Hotbar (Screen GUI)
 └───Item-container
 │   │   file011.txt
-│   │   file012.txt
-│   │
 │   └───subfolder1
 │       │   file111.txt
 │       │   file112.txt
@@ -107,7 +136,7 @@ Signal is `Hotbar.anyItemSelected`
 ## Animations 🎥
 You can make and play animations on the the hotbar or individual items. Animations are simply functions that are stored within the hotbar module, allowing for easy access across scripts. Animations don't necessarily need to be animations, but that's the intended use. You can store any functions pertaining to the hotbar that you want to be acessible across scripts.  
   
-You can create animations with `Hotbar.createAnimation()` and play them with `Hotbar.playAnimation()` to play once for the whole hotbar or `item:playAnimationSelf()` to pass `self` and play on each item.
+Create animations with `Hotbar.createAnimation()` and play them with either `Hotbar.playAnimation()` to play once for the whole hotbar or `item:playAnimationSelf()` to pass `self` and play on each item.
 ```lua
 Hotbar.createAnimation("MyAnimation", function(foo, bar)
     -- edit the properties of the widget or hotbar
@@ -118,10 +147,15 @@ Hotbar.playAnimation("MyAnimayition", false, 5)
 There are premade animations such as TweenIn that tweens the entire Hotbar from off screen.
 
 ## Behavior
-You can set the behavior of an item with certain methods.
+Set the behavior of an item with the following methods:
 
 ### oneClick 
-OneClick essentially calls `self.deselect()` upon selection giving 
-the illusion of a one click button.
+OneClick essentially calls `self.use()` and `self.deselect()` upon selection giving the illusion of a one click button.
   
-The `self.used` signal is triggered upon selection as normal, but 
+### pressAgain
+PresAgain allows you to bind functions to cycle through when the player uses the item again. This is intended for moves/skills that change when the player clicks again while using, like perfect casting a spell.
+```lua
+item:bindPressAgain(1, function()
+    skillDamage = skillDamage * 2
+end)
+```

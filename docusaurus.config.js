@@ -63,6 +63,11 @@ const config = {
             label: 'Docs',
           },
           {
+            href: 'https://create.roblox.com/store/asset/77390116626784/Hotbar',
+            label: 'Module',
+            position: 'right',
+          },
+          {
             href: 'https://github.com/RafiKastner/HotbarPlus',
             label: 'GitHub',
             position: 'right',
@@ -108,8 +113,12 @@ const config = {
       },
       prism: {
         theme: prismThemes.github,
-        darkTheme: prismThemes.dracula,
+        darkTheme: prismThemes.vsDark,
+        additionalLanguages: ['lua'],
       },
+      colorMode: {
+        defaultMode: 'dark',
+      }
     }),
 };
 
